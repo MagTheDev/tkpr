@@ -6,7 +6,7 @@ fn main() {
     let term = Term::stdout();
     term.hide_cursor();
     term.clear_screen();
-    let mut work_manager = WorkManager::new(None);
+    let work_manager = WorkManager::new(None);
     let orange = Style::new().yellow();
     term.write_line("Welcome to");
     term.write_line(
@@ -21,7 +21,7 @@ fn main() {
     );
 
     let sessions = work_manager.get_active_sessions();
-    if sessions.len() > 0 {
+    if !sessions.is_empty() {
         term.write_line("Active Sessions:");
         for session in sessions {
             term.write_line(&format!("{}: {}", session.identifier, session.project));

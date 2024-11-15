@@ -1,5 +1,5 @@
 use std::{collections::HashMap, path::PathBuf};
-use chrono::{DateTime, Duration, Local, Utc};
+use chrono::{DateTime, Duration, Local};
 use rusqlite::{params, Connection};
 
 
