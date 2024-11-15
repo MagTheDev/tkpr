@@ -1,5 +1,6 @@
 use std::{collections::HashMap, path::PathBuf};
 use chrono::{DateTime, Duration, Local};
+use indicatif::HumanDuration;
 use rusqlite::{params, Connection};
 
 
@@ -177,6 +178,10 @@ impl ActiveWorkSession {
             None => Local::now(),
         };
         Self { identifier, start, project }
+    }
+
+    pub fn current_duration(&self) -> String {
+        HumanDuration((Local::now() - self.start).to_std().unwrap()).to_string()
     }
 
     pub fn end(self, description: Option<String>) -> WorkRecord {
