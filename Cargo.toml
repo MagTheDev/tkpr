@@ -1,0 +1,13 @@
+[package]
+name = "tkpr"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+console = "0.15.8"
+crossbeam-channel = "0.5.13"
+indicatif = "0.17.9"
+termcolor = "1.4.1"
+tokio = { version = "1.41.1", features = ["full"] }
+rusqlite = { version = "0.32.0", features = ["bundled", "chrono"] }
+chrono = "0.4.38"
