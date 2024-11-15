@@ -1,5 +1,4 @@
-use std::{collections::{HashMap, HashSet}, path::{Path, PathBuf}};
-
+use std::{collections::HashMap, path::PathBuf};
 use chrono::{DateTime, Duration, Utc};
 use rusqlite::{params, Connection};
 
@@ -69,28 +68,60 @@ impl WorkManager {
         ))
     }
 
-    pub fn get_work_record_by_id(&self, id: i32) -> Option<WorkRecord> {
+    pub fn get_work_record_by_id(&mut self, id: i32) -> Option<WorkRecord> {
 
         if let Some(record) = self.records.get(&id).cloned() {
             return Some(record)
         }
 
         let mut record_query = self.conn.prepare_cached(r#"--sql
-            SELECT * FROM work_records WHERE id = ?1
+            SELECT * FROM work_records WHERE id = ?1;
         "#).unwrap();
         let mut record_iter = record_query.query(params![id]).ok()?; 
         let row = record_iter.next().transpose()?.ok()?;
 
-        Some(WorkRecord {
+        let record = WorkRecord {
             id: row.get(0).ok()?,
             date: row.get(1).ok()?,
             description: row.get(2).ok()?,
             duration: Duration::seconds(row.get(3).ok()?),
             project: row.get(4).ok()?
-        })
+        };
+
+        self.records.insert(record.id, record.clone());
+        Some(record)
+    }
+
+    pub fn get_all_cached_records(&self) -> Vec<WorkRecord> {
+        return self.records.values().cloned().collect();
     }
 
     pub fn get_all_records(&self) -> Vec<WorkRecord> {
-        vec![]
+        
+        let mut record_query = self.conn.prepare_cached(r#"--sql
+            SELECT * FROM work_records;
+        "#).unwrap();
+
+        let record_iter = record_query.query_map([], |row| {
+            Ok(
+                WorkRecord {
+                    id: row.get(0).unwrap(),
+                    date: row.get(1).unwrap(),
+                    description: row.get(2).unwrap(),
+                    duration: Duration::seconds(row.get(3).unwrap()),
+                    project: row.get(4).ok().unwrap()
+                }
+            )
+        }).unwrap();
+
+        let mut records = vec![];
+        
+        for record in record_iter {
+            if let Ok(rec) = record {
+                records.push(rec);
+            }
+        }
+
+        records
     }
 }
